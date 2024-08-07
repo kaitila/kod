@@ -1,21 +1,21 @@
 import { KObject } from "./KObject";
-import { ObjectType } from "./types";
+import { ObjectType, ValueClassProps } from "./types";
 import { StringType, NumberType, BooleanType } from "./valueTypes";
 
 export function object<T extends ObjectType>(obj: T) {
 	return new KObject<typeof obj>(obj);
 }
 
-export function string() {
-	return new StringType();
+export function string(props: ValueClassProps) {
+	return new StringType(props);
 }
 
-export function number() {
-	return new NumberType();
+export function number(props: ValueClassProps) {
+	return new NumberType(props);
 }
 
-export function boolean() {
-	return new BooleanType();
+export function boolean(props: ValueClassProps) {
+	return new BooleanType(props);
 }
 
 export type { TypeOf as type } from "./types";
