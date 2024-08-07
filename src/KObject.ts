@@ -1,12 +1,6 @@
-import { KodError } from "./error";
-import { KType } from "./ktype";
+import { KType } from "./KType";
 import { TypeOfObject } from "./types";
-import { KError, ObjectType } from "./valueTypes";
-
-export interface ParseReturnObject<T> {
-	data?: T;
-	error?: KError[];
-}
+import { KError, ObjectType, ParseReturn } from "./types";
 
 export class KObject<T extends ObjectType> extends KType<TypeOfObject<T>> {
 	readonly output!: TypeOfObject<T>;
@@ -21,25 +15,23 @@ export class KObject<T extends ObjectType> extends KType<TypeOfObject<T>> {
 		return this.obj[key];
 	}
 
-	parse(value: { [key in keyof T]: unknown }): ParseReturnObject<
-		TypeOfObject<T>
-	> {
-		const errors: KError[] = [];
+	parse(value: { [key in keyof T]: unknown }): ParseReturn<TypeOfObject<T>> {
+		const errorArr: KError[] = [];
 
 		Object.keys(this.obj).map((key) => {
 			/*  if (!value[key]) {
 				errors.push(KodError.new("key_undefined", "", key));
 			} */
 
-			const { error } = this.get(key).parse(value[key]);
-			if (error) {
-				errors.push({ ...error, key: key });
+			const { errors } = this.get(key).parse(value[key]);
+			if (errors) {
+				errorArr.push({ ...errors[0], key: `${key}` });
 			}
 		});
 
-		if (errors.length > 0) {
+		if (errorArr.length > 0) {
 			return {
-				error: errors,
+				errors: errorArr,
 			};
 		}
 

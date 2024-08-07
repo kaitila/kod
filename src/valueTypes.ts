@@ -1,27 +1,7 @@
-import { KodError } from "./error";
-import { KType } from "./ktype";
-import { TypeOf } from "./types";
-
-export type ValueType = StringType | EmailType | NumberType | BooleanType;
-export type ObjectType = {
-	[key: string]: ValueType;
-};
-
-export interface KError {
-	code: string;
-	message: string;
-	key?: string;
-}
-
-export interface ParseReturn<T> {
-	data?: T;
-	error?: KError;
-}
-
-export interface ValueClassProps {
-	requiredMessage?: string;
-	typeMessage?: string;
-}
+import { KodError } from "./KodError";
+import { KType } from "./KType";
+import { EMAIL_REGEX, PASSWORD_REGEX } from "./regex";
+import { KError, ParseReturn, ValueClassProps } from "./types";
 
 export abstract class ValueTypeDef<T> extends KType<T> {
 	readonly tsType: string;
@@ -63,15 +43,16 @@ export abstract class ValueTypeDef<T> extends KType<T> {
 	}
 
 	parseCommons(value: unknown): ParseReturn<T> {
+		const errors: KError[] = [];
 		if (!this.optionalKey && !this.isDefined(value)) {
 			return {
-				error: KodError.new("is_required", this.optionalKeyMessage),
+				errors: [KodError.new("is_required", this.optionalKeyMessage)],
 			};
 		}
 
 		if (!this.isTsType(value)) {
 			return {
-				error: KodError.new("invalid_type", this.tsTypeMessage),
+				errors: [KodError.new("invalid_type", this.tsTypeMessage)],
 			};
 		}
 
@@ -80,10 +61,14 @@ export abstract class ValueTypeDef<T> extends KType<T> {
 }
 
 export class StringType extends ValueTypeDef<string> {
-	maxLength: number;
-	minLength: number;
-	maxLengthMessage: string;
-	minLengthMessage: string;
+	maxLength = 0;
+	minLength = 0;
+	emailKey = false;
+	maxLengthMessage = "";
+	minLengthMessage = "";
+	emailMessage = "";
+	passKey = false;
+	passMessage = "";
 
 	constructor(props?: ValueClassProps) {
 		super("string", props || {});
@@ -91,6 +76,18 @@ export class StringType extends ValueTypeDef<string> {
 		this.minLength = 0;
 		this.maxLengthMessage = "";
 		this.minLengthMessage = "";
+	}
+
+	pass(message?: string) {
+		this.passKey = true;
+		this.passMessage = message || "";
+		return this;
+	}
+
+	email(message?: string) {
+		this.emailKey = true;
+		this.emailMessage = message || "";
+		return this;
 	}
 
 	max(val: number, message?: string) {
@@ -106,22 +103,34 @@ export class StringType extends ValueTypeDef<string> {
 	}
 
 	parse(value: unknown): ParseReturn<string> {
-		const { error } = this.parseCommons(value);
-		if (error) {
-			return { error };
+		const { errors } = this.parseCommons(value);
+		if (errors) {
+			return { errors };
 		}
 
 		const typedValue = value as string;
 
+		if (this.emailKey && !this.isEmail(typedValue)) {
+			return {
+				errors: [KodError.new("not_email", this.emailMessage)],
+			};
+		}
+
+		if (this.passKey && !this.isPass(typedValue)) {
+			return {
+				errors: [KodError.new("not_pass", this.passMessage)],
+			};
+		}
+
 		if (!this.isMinLength(typedValue)) {
 			return {
-				error: KodError.new("too_short", this.minLengthMessage),
+				errors: [KodError.new("too_short", this.minLengthMessage)],
 			};
 		}
 
 		if (!this.isMaxLength(typedValue)) {
 			return {
-				error: KodError.new("too_long", this.maxLengthMessage),
+				errors: [KodError.new("too_long", this.maxLengthMessage)],
 			};
 		}
 
@@ -137,14 +146,24 @@ export class StringType extends ValueTypeDef<string> {
 	isMaxLength(value: string) {
 		return value.length <= this.maxLength;
 	}
+
+	isEmail(value: string) {
+		return EMAIL_REGEX.test(value);
+	}
+
+	isPass(value: string) {
+		return PASSWORD_REGEX.test(value);
+	}
 }
 
 export class NumberType extends ValueTypeDef<number> {
 	minVal: number;
 	maxVal: number;
+	minValMessage = "";
+	maxValMessage = "";
 	constructor(props?: ValueClassProps) {
 		super("number", props || {});
-		this.maxVal = 30;
+		this.maxVal = 0;
 		this.minVal = 0;
 	}
 
@@ -158,32 +177,40 @@ export class NumberType extends ValueTypeDef<number> {
 		return this;
 	}
 
-	parse(): ParseReturn<number> {
-		return {};
-	}
-}
+	parse(value: unknown): ParseReturn<number> {
+		const { errors } = this.parseCommons(value);
+		if (errors) {
+			return { errors };
+		}
 
-export class EmailType extends ValueTypeDef<string> {
-	maxLength: number;
-	minLength: number;
-	constructor(props?: ValueClassProps) {
-		super("string", props || {});
-		this.maxLength = 30;
-		this.minLength = 0;
+		const typedValue = value as number;
+		if (!this.isMinValue(typedValue)) {
+			return {
+				errors: [KodError.new("too_small", this.minValMessage)],
+			};
+		}
+
+		if (!this.isMaxValue(typedValue)) {
+			return {
+				errors: [KodError.new("too_large", this.maxValMessage)],
+			};
+		}
+
+		return {
+			data: typedValue,
+		};
 	}
 
-	max(val: number) {
-		this.maxLength = val;
-		return this;
+	isMinValue(value: number) {
+		return value >= this.minVal;
 	}
 
-	min(val: number) {
-		this.minLength = val;
-		return this;
-	}
+	isMaxValue(value: number) {
+		if (this.maxVal > 0) {
+			return value <= this.maxVal;
+		}
 
-	parse(): ParseReturn<string> {
-		return {};
+		return true;
 	}
 }
 
@@ -192,7 +219,16 @@ export class BooleanType extends ValueTypeDef<boolean> {
 		super("boolean", props || {});
 	}
 
-	parse(): ParseReturn<boolean> {
-		return {};
+	parse(value: unknown): ParseReturn<boolean> {
+		const { errors } = this.parseCommons(value);
+		if (errors) {
+			return {
+				errors,
+			};
+		}
+
+		return {
+			data: value as boolean,
+		};
 	}
 }

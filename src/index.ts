@@ -1,1 +1,1 @@
-export * as k from "./types";
+export * as k from "./methods";

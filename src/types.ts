@@ -1,35 +1,29 @@
-import { KType } from "./ktype";
-import { KObject } from "./object";
-import {
-	BooleanType,
-	EmailType,
-	NumberType,
-	ObjectType,
-	StringType,
-} from "./valueTypes";
+import { KType } from "./KType";
+import { KObject } from "./KObject";
+import { StringType, NumberType, BooleanType } from "./valueTypes";
 
-export function object<T extends ObjectType>(obj: T) {
-	return new KObject<typeof obj>(obj);
+export type ValueType = StringType | NumberType | BooleanType;
+export type ObjectType = {
+	[key: string]: ValueType;
+};
+
+export interface KError {
+	code: string;
+	message: string;
+	key: string;
 }
 
-export function string() {
-	return new StringType();
+export interface ParseReturn<T> {
+	data?: T;
+	errors?: KError[];
 }
 
-export function email() {
-	return new EmailType();
-}
-
-export function number() {
-	return new NumberType();
-}
-
-export function boolean() {
-	return new BooleanType();
+export interface ValueClassProps {
+	requiredMessage?: string;
+	typeMessage?: string;
 }
 
 export type TypeOf<T extends KType<any>> = T["output"];
 export type TypeOfObject<T extends ObjectType> = {
 	[key in keyof T]: TypeOf<T[key]>;
 };
-export type { TypeOf as getType };
