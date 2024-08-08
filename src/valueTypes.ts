@@ -167,13 +167,15 @@ export class NumberType extends ValueTypeDef<number> {
 		this.minVal = 0;
 	}
 
-	max(val: number) {
+	max(val: number, message: string) {
 		this.maxVal = val;
+		this.maxValMessage = message || "";
 		return this;
 	}
 
-	min(val: number) {
+	min(val: number, message: string) {
 		this.minVal = val;
+		this.minValMessage = message || "";
 		return this;
 	}
 
