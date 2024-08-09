@@ -1,26 +1,38 @@
 import { KType } from "./KType";
-import { KObject } from "./KObject";
 import { StringType, NumberType, BooleanType } from "./valueTypes";
+import { KodError } from "./KodError";
 
-export type ValueType = StringType | NumberType | BooleanType;
 export type ObjectType = {
-	[key: string]: ValueType;
+	[key: string]: KType<any>;
 };
 
 export interface KError {
 	code: string;
 	message: string;
-	key: string;
+	path: string;
+}
+
+export interface KErrorFormat {
+	[key: string]: KErrorFormat | string;
 }
 
 export interface ParseReturn<T> {
 	data?: T;
-	errors?: KError[];
+	error?: KodError;
 }
 
 export interface ValueClassProps {
 	requiredMessage?: string;
 	typeMessage?: string;
+	undefinedMessage?: string;
+}
+
+export type DefaultMessages = {
+	[key in keyof ValueClassProps]-?: string;
+};
+
+export interface KObjectProps {
+	undefinedMessage?: string;
 }
 
 export type TypeOf<T extends KType<any>> = T["output"];
