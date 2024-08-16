@@ -37,7 +37,6 @@ export class KObject<T extends ObjectType> extends KType<TypeOfObject<T>> {
 			}
 
 			const { error } = this.get(key).parse(value[key]);
-			console.log(error?.items);
 			if (error) {
 				error.items.map((item) => {
 					errorArr.push({

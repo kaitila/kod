@@ -16,6 +16,10 @@ export interface KErrorFormat {
 	[key: string]: KErrorFormat | string;
 }
 
+export interface KErrorFlatten {
+	[key: string]: string;
+}
+
 export interface ParseReturn<T> {
 	data?: T;
 	error?: KodError;

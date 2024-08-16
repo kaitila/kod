@@ -1,4 +1,4 @@
-import { KError, KErrorFormat } from "./types";
+import { KError, KErrorFlatten, KErrorFormat } from "./types";
 
 export class KodError {
 	items: KError[];
@@ -15,6 +15,16 @@ export class KodError {
 			}
 		});
 
+		return returnObj;
+	}
+
+	flatten(): KErrorFlatten {
+		let returnObj: KErrorFlatten = {};
+		this.items.map((item) => {
+			if (item.path) {
+				returnObj[item.path.split("/").pop()!] = item.message;
+			}
+		});
 		return returnObj;
 	}
 
