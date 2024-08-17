@@ -1,10 +1,10 @@
-import { KObject } from "./KObject";
+import { KodObject } from "./KodObject";
 import { KodError } from "./KodError";
-import { KError, KObjectProps, ObjectType, ValueClassProps } from "./types";
+import { KError, KodObjectProps, ObjectType, ValueClassProps } from "./types";
 import { StringType, NumberType, BooleanType } from "./valueTypes";
 
-export function object<T extends ObjectType>(obj: T, props?: KObjectProps) {
-	return new KObject<typeof obj>(obj, props || {});
+export function object<T extends ObjectType>(obj: T, props?: KodObjectProps) {
+	return new KodObject<typeof obj>(obj, props || {});
 }
 
 export function string(props?: ValueClassProps) {

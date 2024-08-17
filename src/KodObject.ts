@@ -1,16 +1,16 @@
 import { defaultMessages } from "./const";
 import { KodError } from "./KodError";
-import { KType } from "./KType";
+import { KodType } from "./KodType";
 import { newError } from "./methods";
-import { KObjectProps, TypeOfObject } from "./types";
+import { KodObjectProps, TypeOfObject } from "./types";
 import { KError, ObjectType, ParseReturn } from "./types";
 
-export class KObject<T extends ObjectType> extends KType<TypeOfObject<T>> {
+export class KodObject<T extends ObjectType> extends KodType<TypeOfObject<T>> {
 	readonly output!: TypeOfObject<T>;
 	obj: T;
 	undefinedMessage: string;
 
-	constructor(obj: T, { undefinedMessage }: KObjectProps) {
+	constructor(obj: T, { undefinedMessage }: KodObjectProps) {
 		super();
 		this.obj = obj;
 		this.undefinedMessage =

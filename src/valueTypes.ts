@@ -1,11 +1,11 @@
 import { defaultMessages } from "./const";
 import { KodError } from "./KodError";
-import { KType } from "./KType";
+import { KodType } from "./KodType";
 import { newError } from "./methods";
 import { EMAIL_REGEX, PASSWORD_REGEX } from "./regex";
 import { KError, ParseReturn, ValueClassProps } from "./types";
 
-export abstract class ValueTypeDef<T> extends KType<T> {
+export abstract class ValueType<T> extends KodType<T> {
 	readonly tsType: string;
 	tsTypeMessage: string;
 	optionalKey: boolean;
@@ -66,7 +66,7 @@ export abstract class ValueTypeDef<T> extends KType<T> {
 	}
 }
 
-export class StringType extends ValueTypeDef<string> {
+export class StringType extends ValueType<string> {
 	maxLength = 0;
 	minLength = 0;
 	emailKey = false;
@@ -166,7 +166,7 @@ export class StringType extends ValueTypeDef<string> {
 	}
 }
 
-export class NumberType extends ValueTypeDef<number> {
+export class NumberType extends ValueType<number> {
 	minVal: number;
 	maxVal: number;
 	minValMessage = "";
@@ -230,7 +230,7 @@ export class NumberType extends ValueTypeDef<number> {
 	}
 }
 
-export class BooleanType extends ValueTypeDef<boolean> {
+export class BooleanType extends ValueType<boolean> {
 	constructor(props?: ValueClassProps) {
 		super("boolean", props || {});
 	}
