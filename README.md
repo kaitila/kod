@@ -99,6 +99,20 @@ k.string().parse('Am I a string?');
 ```
 
 If the given `value` is valid, `error` is `undefined`. If `value` is invalid, `data` is left `undefined`.
+> Only `data` or `error` is returned, `never` both.
+<br><br/>
+
+#### 2.3.1 Partial parsing
+Objects can be parsed partially by accessing its properties via `KodObject.get()`.
+
+```typescript
+const exampleSchema = k.object({
+  name: k.string(),
+  age: k.number(),
+});
+
+exampleSchema.get('name').parse('Git Hub');
+```
 <br><br/>
 
 ### 2.3 Validation parameters
@@ -119,7 +133,7 @@ Learn more about validation parameters in [`Schema methods`](#3-schema-methods)
 
 ## 3 Schema methods
 
-### string()
+### `string()`
 Supported validation parameters for strings:
 
 ```typescript
