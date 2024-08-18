@@ -8,7 +8,12 @@ export type ObjectType = {
 export interface KError {
 	code: string;
 	message: string;
-	path: string;
+	path: string[];
+}
+
+export interface RefineError {
+	message?: string;
+	path?: string[];
 }
 
 export interface KErrorFormat {
@@ -37,6 +42,8 @@ export type DefaultMessages = {
 export interface KodObjectProps {
 	undefinedMessage?: string;
 }
+
+export type RefineFunction<T> = (values: T) => any;
 
 export type TypeOf<T extends KodType<any>> = T["output"];
 export type TypeOfObject<T extends ObjectType> = {

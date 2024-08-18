@@ -2,13 +2,24 @@ import { defaultMessages } from "./const";
 import { KodError } from "./KodError";
 import { KodType } from "./KodType";
 import { newError } from "./methods";
-import { KodObjectProps, TypeOfObject } from "./types";
+import {
+	KodObjectProps,
+	RefineError,
+	RefineFunction,
+	TypeOfObject,
+} from "./types";
 import { KError, ObjectType, ParseReturn } from "./types";
 
 export class KodObject<T extends ObjectType> extends KodType<TypeOfObject<T>> {
 	readonly output!: TypeOfObject<T>;
 	obj: T;
 	undefinedMessage: string;
+	refineFunction: RefineFunction<TypeOfObject<T>> = (
+		values: TypeOfObject<T>
+	) => {
+		return true;
+	};
+	refineError: RefineError = {};
 
 	constructor(obj: T, { undefinedMessage }: KodObjectProps) {
 		super();
@@ -30,7 +41,7 @@ export class KodObject<T extends ObjectType> extends KodType<TypeOfObject<T>> {
 					KodError.new(
 						"key_undefined",
 						this.get(key).undefinedMessage,
-						`/${key}`
+						[key]
 					)
 				);
 				return;
@@ -41,11 +52,28 @@ export class KodObject<T extends ObjectType> extends KodType<TypeOfObject<T>> {
 				error.items.map((item) => {
 					errorArr.push({
 						...item,
-						path: `/${key}${item.path}`,
+						path: [key, ...item.path],
 					});
 				});
 			}
 		});
+
+		const typedValue = value as TypeOfObject<T>;
+
+		if (
+			!this.refineFunction(typedValue) &&
+			!errorArr.find(
+				(item) =>
+					item.path.toString() == this.refineError.path?.toString()
+			)
+		) {
+			errorArr.push(
+				KodError.newRefine(
+					this.refineError.message,
+					this.refineError.path
+				)
+			);
+		}
 
 		if (errorArr.length > 0) {
 			return {
@@ -54,7 +82,13 @@ export class KodObject<T extends ObjectType> extends KodType<TypeOfObject<T>> {
 		}
 
 		return {
-			data: value as TypeOfObject<T>,
+			data: typedValue,
 		};
+	}
+
+	refine(validator: RefineFunction<TypeOfObject<T>>, error: RefineError) {
+		this.refineFunction = validator;
+		this.refineError = error;
+		return this;
 	}
 }
