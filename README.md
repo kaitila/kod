@@ -54,8 +54,8 @@ The most common way of utilizing `kod` is to combine different schema methods to
 
 ```typescript
 const exampleSchema = k.object({
-	name: k.string(),
-	age: k.number(),
+  name: k.string(),
+  age: k.number(),
 });
 ```
 
@@ -63,10 +63,10 @@ const exampleSchema = k.object({
 
 ```typescript
 const exampleSchema = k.object({
-	personalData: k.object({
-		name: k.string(),
-		age: k.number(),
-	}),
+  personalData: k.object({
+    name: k.string(),
+    age: k.number(),
+  }),
 });
 ```
 
@@ -79,7 +79,7 @@ The type for the schema is automatically infered and stored in the `output` prop
 
 ```typescript
 class KodType<T> {
-	readonly output!: T;
+  readonly output!: T;
 }
 ```
 
@@ -123,8 +123,8 @@ Objects can be parsed partially by accessing its properties via `KodObject.get()
 
 ```typescript
 const exampleSchema = k.object({
-	name: k.string(),
-	age: k.number(),
+  name: k.string(),
+  age: k.number(),
 });
 
 exampleSchema.get("name").parse("Git Hub");
@@ -212,3 +212,5 @@ Minimun value for the number.
 #### `max(value: number, message? string)`
 
 Maximum value for the number.
+
+## To be continued...
